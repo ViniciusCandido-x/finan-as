@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#0F0F14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Finanças">
-<link rel="manifest" href="manifest.json">
 <title>Finanças • Vinicius</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
 <style>
   * {
     margin: 0;
@@ -802,7 +802,7 @@
     <div class="header-top">
       <div>
         <div class="header-title">💰 Finanças</div>
-        <div class="header-subtitle">Vinicius Candido</div>
+        <div class="header-subtitle" id="headerUserName">Vinicius Candido</div>
       </div>
       <div class="header-actions">
         <button class="icon-btn" onclick="exportData()" title="Exportar dados">📤</button>
@@ -816,6 +816,7 @@
     <div class="tab" data-page="receitas">📈 Receitas</div>
     <div class="tab" data-page="despesas">📉 Despesas</div>
     <div class="tab" data-page="emprestimos">🤝 Empréstimos</div>
+    <div class="tab" data-page="clientes">👥 Clientes</div>
     <div class="tab" data-page="capitais">💼 Capitais</div>
     <div class="tab" data-page="investimentos">📊 Investimentos</div>
     <div class="tab" data-page="metas">🎯 Metas</div>
@@ -846,41 +847,304 @@
 const STORAGE_KEY = 'financas_vinicius';
 
 const DEFAULT_DATA = {
-  config: {
-    saldoInicial: 2890.79,
-    dataCorte: '2026-05-06',
+  "config": {
+    "saldoInicial": 2889.79,
+    "dataCorte": "2026-05-06"
   },
-  receitas: [
-    { id: 1, dataPrev: '2026-05-07', categoria: 'Salário', valor: 2627.02, descricao: 'Salário Maio (5° dia útil)', dataReceb: '2026-05-07' },
-    { id: 2, dataPrev: '2026-05-20', categoria: 'Salário', valor: null, descricao: 'Adiantamento (Dia 20)', dataReceb: null },
-    { id: 3, dataPrev: '2026-05-08', categoria: 'Juros', valor: 30, descricao: 'Juros - Tainá', dataReceb: '2026-05-08' },
+  "receitas": [
+    {
+      "id": 1,
+      "dataPrev": "2026-05-07",
+      "categoria": "Salário",
+      "valor": 2627.02,
+      "descricao": "Salário Maio (5° dia útil)",
+      "dataReceb": "2026-05-07"
+    },
+    {
+      "id": 2,
+      "dataPrev": "2026-05-20",
+      "categoria": "Salário",
+      "valor": null,
+      "descricao": "Adiantamento (Dia 20)",
+      "dataReceb": null
+    },
+    {
+      "id": 3,
+      "dataPrev": "2026-05-08",
+      "categoria": "Juros",
+      "valor": 30,
+      "descricao": "Juros - Tainá",
+      "dataReceb": "2026-05-08"
+    }
   ],
-  despesas: [
-    { id: 1, data: '2026-05-07', categoria: 'Conta Fixa', sub: 'Vivo', valor: 64, formaPgto: 'Débito', necessario: 'Sim', desc: 'Conta Vivo - maio', dataPgto: '2026-05-08' },
-    { id: 2, data: '2026-05-07', categoria: 'Cartão de Crédito', sub: 'Cartão Santander', valor: 928, formaPgto: 'Cartão', necessario: 'Sim', desc: 'Fatura Santander', dataPgto: null },
-    { id: 3, data: '2026-05-07', categoria: 'Cartão de Crédito', sub: 'Cartão Mais!', valor: 1600, formaPgto: 'Cartão', necessario: 'Sim', desc: 'Fatura Mais!', dataPgto: null },
-    { id: 4, data: '2026-05-07', categoria: 'Cartão de Crédito', sub: 'Cartão Carrefour', valor: 1220, formaPgto: 'Cartão', necessario: 'Sim', desc: 'Fatura Carrefour', dataPgto: null },
-    { id: 5, data: '2026-05-07', categoria: 'Outros', sub: 'Upgrade PC', valor: 195, formaPgto: 'Débito', necessario: 'Sim', desc: 'Parcela do PC', dataPgto: '2026-05-08' },
+  "despesas": [
+    {
+      "id": 1,
+      "data": "2026-05-07",
+      "categoria": "Conta Fixa",
+      "sub": "Vivo",
+      "valor": 64,
+      "formaPgto": "Débito",
+      "necessario": "Sim",
+      "desc": "Conta Vivo - maio",
+      "dataPgto": "2026-05-08"
+    },
+    {
+      "id": 2,
+      "data": "2026-05-07",
+      "categoria": "Cartão de Crédito",
+      "sub": "Cartão Santander",
+      "valor": 928,
+      "formaPgto": "Cartão",
+      "necessario": "Sim",
+      "desc": "Fatura Santander",
+      "dataPgto": null
+    },
+    {
+      "id": 3,
+      "data": "2026-05-07",
+      "categoria": "Cartão de Crédito",
+      "sub": "Cartão Mais!",
+      "valor": 1600,
+      "formaPgto": "Cartão",
+      "necessario": "Sim",
+      "desc": "Fatura Mais!",
+      "dataPgto": null
+    },
+    {
+      "id": 4,
+      "data": "2026-05-07",
+      "categoria": "Cartão de Crédito",
+      "sub": "Cartão Carrefour",
+      "valor": 1220,
+      "formaPgto": "Cartão",
+      "necessario": "Sim",
+      "desc": "Fatura Carrefour",
+      "dataPgto": null
+    },
+    {
+      "id": 5,
+      "data": "2026-05-07",
+      "categoria": "Outros",
+      "sub": "Upgrade PC",
+      "valor": 195,
+      "formaPgto": "Débito",
+      "necessario": "Sim",
+      "desc": "Parcela do PC",
+      "dataPgto": "2026-05-08"
+    },
+    {
+      "id": 6,
+      "data": "2026-05-08",
+      "categoria": "Alimentação",
+      "sub": "Padaria Boulanger",
+      "valor": 17.4,
+      "formaPgto": "Pix",
+      "necessario": "Não",
+      "desc": "Café da manhã na Boulanger",
+      "dataPgto": "2026-05-08"
+    },
+    {
+      "id": 7,
+      "data": "2026-05-08",
+      "categoria": "Transporte",
+      "sub": "InDrive",
+      "valor": 50,
+      "formaPgto": "Pix",
+      "necessario": "Não",
+      "desc": "Ilha do Caranguejo > Casa",
+      "dataPgto": "2026-05-08"
+    }
   ],
-  emprestimos: [
-    { id: 1, nome: 'Ludmilla do Nascimento Silva', contato: '27996293676', dataEmp: '2026-04-20', dataAcordada: '2026-05-20', dataPgto: null, valor: 300, juros: 0.30, origem: 'Próprio', obs: '' },
-    { id: 2, nome: 'Ludmilla do Nascimento Silva', contato: '27996293676', dataEmp: '2026-04-20', dataAcordada: '2026-05-20', dataPgto: null, valor: 200, juros: 0.30, origem: 'Próprio', obs: '' },
-    { id: 3, nome: 'Taina Santos Batista', contato: '27992633989', dataEmp: '2026-04-28', dataAcordada: '2026-05-07', dataPgto: '2026-05-08', valor: 100, juros: 0.30, origem: 'Próprio', obs: 'Renegociado' },
-    { id: 4, nome: 'Taina Santos Batista', contato: '27992633989', dataEmp: '2026-05-01', dataAcordada: '2026-05-07', dataPgto: '2026-05-08', valor: 73, juros: 0, origem: 'Próprio', obs: 'Sem juros' },
-    { id: 5, nome: 'Ludmilla do Nascimento Silva', contato: '27996293676', dataEmp: '2026-05-07', dataAcordada: '2026-05-20', dataPgto: null, valor: 2115.38, juros: 0.30, origem: 'Próprio', obs: 'Parte 1 do empréstimo de R$2500' },
-    { id: 6, nome: 'Ludmilla do Nascimento Silva', contato: '27996293676', dataEmp: '2026-05-07', dataAcordada: '2026-06-05', dataPgto: null, valor: 384.62, juros: 0.30, origem: 'Próprio', obs: 'Parte 2 do empréstimo de R$2500' },
-    { id: 7, nome: 'Valdene Gomes Menezes', contato: '27997372973', dataEmp: '2026-05-05', dataAcordada: '2026-06-05', dataPgto: null, valor: 3000, juros: 0.30, origem: 'Terceiro', donoTerceiro: 'Pai', obs: 'Capital de terceiro' },
-    { id: 8, nome: 'Deise Ferreira de Jesus', contato: '', dataEmp: '2026-05-07', dataAcordada: '2026-06-05', dataPgto: null, valor: 200, juros: 0.30, origem: 'Terceiro', obs: '' },
-    { id: 9, nome: 'Thais Correa Pereira', contato: '27992245691', dataEmp: '2026-05-07', dataAcordada: '2026-06-05', dataPgto: null, valor: 300, juros: 0.30, origem: 'Terceiro', donoTerceiro: 'Santander Pix Crédito', obs: '' },
+  "emprestimos": [
+    {
+      "id": 1,
+      "nome": "Ludmilla do Nascimento Silva",
+      "contato": "27996293676",
+      "dataEmp": "2026-04-20",
+      "dataAcordada": "2026-05-20",
+      "dataPgto": null,
+      "valor": 300,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": ""
+    },
+    {
+      "id": 2,
+      "nome": "Ludmilla do Nascimento Silva",
+      "contato": "27996293676",
+      "dataEmp": "2026-04-20",
+      "dataAcordada": "2026-05-20",
+      "dataPgto": null,
+      "valor": 200,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": ""
+    },
+    {
+      "id": 3,
+      "nome": "Taina Santos Batista",
+      "contato": "27992633989",
+      "dataEmp": "2026-04-28",
+      "dataAcordada": "2026-05-07",
+      "dataPgto": "2026-05-08",
+      "valor": 100,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": "Renegociado"
+    },
+    {
+      "id": 4,
+      "nome": "Taina Santos Batista",
+      "contato": "27992633989",
+      "dataEmp": "2026-05-01",
+      "dataAcordada": "2026-05-07",
+      "dataPgto": "2026-05-08",
+      "valor": 73,
+      "juros": 0,
+      "origem": "Próprio",
+      "obs": "Sem juros"
+    },
+    {
+      "id": 5,
+      "nome": "Ludmilla do Nascimento Silva",
+      "contato": "27996293676",
+      "dataEmp": "2026-05-07",
+      "dataAcordada": "2026-05-20",
+      "dataPgto": null,
+      "valor": 2115.38,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": "Parte 1 do empréstimo de R$2500"
+    },
+    {
+      "id": 6,
+      "nome": "Ludmilla do Nascimento Silva",
+      "contato": "27996293676",
+      "dataEmp": "2026-05-07",
+      "dataAcordada": "2026-06-05",
+      "dataPgto": null,
+      "valor": 384.62,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": "Parte 2 do empréstimo de R$2500"
+    },
+    {
+      "id": 7,
+      "nome": "Valdene Gomes Menezes",
+      "contato": "27997372973",
+      "dataEmp": "2026-05-05",
+      "dataAcordada": "2026-06-05",
+      "dataPgto": null,
+      "valor": 3000,
+      "juros": 0.3,
+      "origem": "Terceiro",
+      "obs": "Capital de terceiro",
+      "donoTerceiro": "Pai"
+    },
+    {
+      "id": 8,
+      "nome": "Deise Ferreira de Jesus",
+      "contato": "",
+      "dataEmp": "2026-05-07",
+      "dataAcordada": "2026-05-20",
+      "dataPgto": null,
+      "valor": 200,
+      "juros": 0.3,
+      "origem": "Terceiro",
+      "obs": "",
+      "donoTerceiro": "Santander Pix Crédito"
+    },
+    {
+      "id": 9,
+      "nome": "Thais Correa Pereira",
+      "contato": "27992245691",
+      "dataEmp": "2026-05-07",
+      "dataAcordada": "2026-06-05",
+      "dataPgto": null,
+      "valor": 300,
+      "juros": 0.3,
+      "origem": "Terceiro",
+      "obs": "",
+      "donoTerceiro": "Santander Pix Crédito"
+    },
+    {
+      "id": 10,
+      "nome": "Ludmilla do Nascimento Silva",
+      "contato": "27996293676",
+      "dataEmp": "2026-05-08",
+      "dataAcordada": "2026-06-20",
+      "dataPgto": null,
+      "valor": 350,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": "Retirado do saldo em conta para Empréstimo"
+    },
+    {
+      "id": 11,
+      "nome": "Deise Ferreira de Jesus",
+      "contato": "27999548727",
+      "dataEmp": "2026-05-08",
+      "dataAcordada": "2026-05-20",
+      "dataPgto": null,
+      "valor": 200,
+      "juros": 0.3,
+      "origem": "Próprio",
+      "obs": ""
+    }
   ],
-  investimentos: [],
-  metas: {
-    valorMeta: 0,
-    aportes: []
+  "investimentos": [],
+  "metas": {
+    "valorMeta": 0,
+    "aportes": []
   },
-  devolucoes: [],
-  donosTerceiros: ['Pai', 'Santander Pix Crédito'],
-  pin: null
+  "devolucoes": [],
+  "donosTerceiros": [
+    "Pai",
+    "Santander Pix Crédito"
+  ],
+  "contas": [
+    "Inter",
+    "Itaú",
+    "Mercado Pago",
+    "Santander"
+  ],
+  "userName": "Vinicius Candido",
+  "msgCobranca": "Oi {nome}, tudo bem? Lembrete que hoje vence o pagamento de R$ {valor}. Pode confirmar? Obrigado!",
+  "lastBackup": null,
+  "pin": null,
+  "clientes": [
+    {
+      "id": 1,
+      "nome": "Ludmilla do Nascimento Silva",
+      "contato": "27996293676",
+      "obs": ""
+    },
+    {
+      "id": 2,
+      "nome": "Taina Santos Batista",
+      "contato": "27992633989",
+      "obs": ""
+    },
+    {
+      "id": 3,
+      "nome": "Valdene Gomes Menezes",
+      "contato": "27997372973",
+      "obs": ""
+    },
+    {
+      "id": 4,
+      "nome": "Deise Ferreira de Jesus",
+      "contato": "",
+      "obs": ""
+    },
+    {
+      "id": 5,
+      "nome": "Thais Correa Pereira",
+      "contato": "27992245691",
+      "obs": ""
+    }
+  ]
 };
 
 let DATA = loadData();
@@ -934,10 +1198,10 @@ function parseDate(s) {
   return new Date(s + 'T00:00:00');
 }
 
-let CURRENT_PERIOD = {
-  month: 5,
-  year: 2026
-};
+let CURRENT_PERIOD = (() => {
+  const now = new Date();
+  return { month: now.getMonth() + 1, year: now.getFullYear() };
+})();
 
 // ============================================================
 // CÁLCULOS
@@ -1085,7 +1349,7 @@ function render() {
   
   // FAB visibility
   const fab = document.getElementById('fab');
-  if (['receitas', 'despesas', 'emprestimos', 'investimentos'].includes(tab)) {
+  if (['receitas', 'despesas', 'emprestimos', 'investimentos', 'clientes'].includes(tab)) {
     fab.style.display = 'flex';
   } else if (tab === 'metas') {
     fab.style.display = 'flex';
@@ -1100,6 +1364,7 @@ function render() {
     case 'receitas': content.innerHTML = renderReceitas(); break;
     case 'despesas': content.innerHTML = renderDespesas(); break;
     case 'emprestimos': content.innerHTML = renderEmprestimos(); break;
+    case 'clientes': content.innerHTML = renderClientes(); break;
     case 'capitais': content.innerHTML = renderCapitais(); break;
     case 'investimentos': content.innerHTML = renderInvestimentos(); break;
     case 'metas': content.innerHTML = renderMetas(); break;
@@ -1109,32 +1374,63 @@ function render() {
     case 'config': content.innerHTML = renderConfig(); break;
   }
   
-  // Period selector listener
-  const monthBtn = document.getElementById('monthBtn');
-  const yearBtn = document.getElementById('yearBtn');
-  if (monthBtn) {
-    monthBtn.onclick = () => {
-      CURRENT_PERIOD.month = (CURRENT_PERIOD.month % 12) + 1;
-      render();
-    };
-  }
-  if (yearBtn) {
-    yearBtn.onclick = () => {
-      CURRENT_PERIOD.year++;
-      if (CURRENT_PERIOD.year > 2030) CURRENT_PERIOD.year = 2024;
-      render();
-    };
-  }
+  // Atualizar nome do usuário no header
+  const headerName = document.getElementById('headerUserName');
+  if (headerName && DATA.userName) headerName.textContent = DATA.userName;
 }
 
 const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 function periodSelector() {
-  return `<div class="period-selector">
-    <button class="period-btn" id="monthBtn">📅 ${MESES_NOMES[CURRENT_PERIOD.month-1]}</button>
-    <button class="period-btn" id="yearBtn">${CURRENT_PERIOD.year}</button>
-    <div class="period-display">${MESES_NOMES[CURRENT_PERIOD.month-1]}/${CURRENT_PERIOD.year}</div>
+  return `<div class="period-selector" style="display:flex;gap:6px;align-items:center;margin-bottom:16px">
+    <button class="period-btn" onclick="changeMonth(-1)" style="padding:8px 12px;font-size:18px;line-height:1">‹</button>
+    <button class="period-btn" onclick="openMonthPicker()" style="flex:1;text-align:center;font-weight:600">📅 ${MESES_NOMES[CURRENT_PERIOD.month-1]} / ${CURRENT_PERIOD.year}</button>
+    <button class="period-btn" onclick="changeMonth(1)" style="padding:8px 12px;font-size:18px;line-height:1">›</button>
+    <button class="period-btn" onclick="goToCurrentMonth()" title="Ir pro mês atual" style="padding:8px 10px">🎯</button>
   </div>`;
+}
+
+function changeMonth(delta) {
+  CURRENT_PERIOD.month += delta;
+  if (CURRENT_PERIOD.month > 12) { CURRENT_PERIOD.month = 1; CURRENT_PERIOD.year++; }
+  if (CURRENT_PERIOD.month < 1) { CURRENT_PERIOD.month = 12; CURRENT_PERIOD.year--; }
+  render();
+}
+
+function goToCurrentMonth() {
+  const now = new Date();
+  CURRENT_PERIOD.month = now.getMonth() + 1;
+  CURRENT_PERIOD.year = now.getFullYear();
+  render();
+}
+
+function openMonthPicker() {
+  showModal(`
+    <div class="modal-title">Escolher período</div>
+    <div class="form-group">
+      <label class="form-label">Mês</label>
+      <select class="form-select" id="picker_month">
+        ${MESES_NOMES.map((m, i) => `<option value="${i+1}" ${CURRENT_PERIOD.month === i+1 ? 'selected' : ''}>${m}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ano</label>
+      <select class="form-select" id="picker_year">
+        ${[2024,2025,2026,2027,2028,2029,2030].map(y => `<option value="${y}" ${CURRENT_PERIOD.year === y ? 'selected' : ''}>${y}</option>`).join('')}
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="applyMonthPicker()">Aplicar</button>
+    </div>
+  `);
+}
+
+function applyMonthPicker() {
+  CURRENT_PERIOD.month = parseInt(document.getElementById('picker_month').value);
+  CURRENT_PERIOD.year = parseInt(document.getElementById('picker_year').value);
+  closeModal();
+  render();
 }
 
 // ============================================================
@@ -1142,6 +1438,19 @@ function periodSelector() {
 // ============================================================
 function renderDashboard() {
   const m = CURRENT_PERIOD.month, y = CURRENT_PERIOD.year;
+  
+  // Calcular empréstimos vencendo nos próximos 7 dias
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const em7dias = new Date(hoje); em7dias.setDate(hoje.getDate() + 7);
+  const vencendoBreve = DATA.emprestimos.filter(e => {
+    if (e.dataPgto) return false;
+    const va = parseDate(e.dataAcordada);
+    return va && va >= hoje && va <= em7dias;
+  }).sort((a,b) => (a.dataAcordada||'').localeCompare(b.dataAcordada||''));
+  
+  const atrasados = DATA.emprestimos.filter(e => getStatus(e) === 'Atrasado');
+  const totalAtrasado = atrasados.reduce((s,e) => s + (e.valor||0) * (1 + (e.juros||0)), 0);
+  const totalVencendo = vencendoBreve.reduce((s,e) => s + (e.valor||0) * (1 + (e.juros||0)), 0);
   const saldo = calcSaldoAtual();
   const receitas = calcReceitasMes(m, y);
   const despesasPagas = calcDespesasPagas(m, y);
@@ -1176,10 +1485,51 @@ function renderDashboard() {
   const jurosRecebidos = calcReceitasMes(m, y, 'Juros');
   const aReceber = DATA.emprestimos.filter(e => getStatus(e) !== 'Pago').reduce((s,e) => s + (e.valor || 0), 0);
   const jurosAReceber = DATA.emprestimos.filter(e => getStatus(e) !== 'Pago').reduce((s,e) => s + (e.valor || 0) * (e.juros || 0), 0);
-  const atrasados = DATA.emprestimos.filter(e => getStatus(e) === 'Atrasado').length;
+  const atrasadosCount = DATA.emprestimos.filter(e => getStatus(e) === 'Atrasado').length;
   
   return `
     ${periodSelector()}
+    
+    ${atrasados.length > 0 ? `
+      <div class="section" style="border-color:var(--danger);background:rgba(248,113,113,0.05);margin-bottom:12px">
+        <div class="section-title" style="color:var(--danger)">⚠️ ${atrasados.length} empréstimo${atrasados.length !== 1 ? 's' : ''} atrasado${atrasados.length !== 1 ? 's' : ''}</div>
+        <div style="font-size:18px;font-weight:700;color:var(--danger);margin-bottom:8px">${fmt(totalAtrasado)}</div>
+        ${atrasados.slice(0,3).map(e => `
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid var(--border);font-size:13px">
+            <span>${e.nome.split(' ')[0]} • venceu ${fmtDate(e.dataAcordada)}</span>
+            <span style="font-weight:600">${fmt((e.valor||0) * (1 + (e.juros||0)))}</span>
+          </div>
+        `).join('')}
+        ${atrasados.length > 3 ? `<div style="text-align:center;margin-top:6px;font-size:12px;color:var(--text-muted)">+${atrasados.length - 3} mais...</div>` : ''}
+      </div>
+    ` : ''}
+    
+    ${vencendoBreve.length > 0 ? `
+      <div class="section" style="border-color:var(--warning);background:rgba(251,191,36,0.05);margin-bottom:12px">
+        <div class="section-title" style="color:var(--warning)">⏰ Vencem em 7 dias (${vencendoBreve.length})</div>
+        <div style="font-size:18px;font-weight:700;color:var(--warning);margin-bottom:8px">${fmt(totalVencendo)}</div>
+        ${vencendoBreve.slice(0,5).map(e => {
+          const va = parseDate(e.dataAcordada);
+          const dias = Math.floor((va - hoje) / (1000*60*60*24));
+          const diasTxt = dias === 0 ? 'HOJE' : dias === 1 ? 'amanhã' : `em ${dias} dias`;
+          return `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-top:1px solid var(--border);font-size:13px;gap:8px">
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:500">${e.nome.split(' ')[0]}</div>
+                <div style="font-size:11px;color:var(--text-muted)">vence ${diasTxt}</div>
+              </div>
+              <span style="font-weight:600">${fmt((e.valor||0) * (1 + (e.juros||0)))}</span>
+              <button class="icon-btn" onclick="copyMsgCobranca(${e.id})" style="padding:4px 8px;font-size:12px">💬</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    ` : ''}
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+      <button class="btn btn-secondary" onclick="openDespesaModal(null)" style="padding:14px;font-size:13px">⚡ Despesa rápida</button>
+      <button class="btn btn-secondary" onclick="openEmprestimoModal(null)" style="padding:14px;font-size:13px">🤝 Novo empréstimo</button>
+    </div>
     
     <div class="cards-grid">
       <div class="card">
@@ -1274,11 +1624,55 @@ function renderDashboard() {
         </div>
         <div class="card danger">
           <div class="card-label">⚠️ Atrasados</div>
-          <div class="card-value" style="font-size:16px">${atrasados}</div>
+          <div class="card-value" style="font-size:16px">${atrasadosCount}</div>
         </div>
       </div>
     </div>
+    
+    <button class="btn btn-secondary" onclick="openResumoMes()" style="width:100%;padding:14px;margin-top:8px">📋 Ver resumo do mês</button>
   `;
+}
+
+function openResumoMes() {
+  const m = CURRENT_PERIOD.month, y = CURRENT_PERIOD.year;
+  const nome = MESES_NOMES[m-1];
+  const saldo = calcSaldoAtual();
+  const rec = calcReceitasMes(m, y);
+  const dep = calcDespesasPagas(m, y);
+  const pend = calcDespesasPendentes(m, y);
+  const juros = calcReceitasMes(m, y, 'Juros');
+  const necess = calcDespesasPagas(m, y, null, 'Sim');
+  const desnec = calcDespesasPagas(m, y, null, 'Não');
+  const resultado = rec - dep;
+  
+  const txt = `📊 RESUMO ${nome.toUpperCase()}/${y}
+━━━━━━━━━━━━━━━━━━━
+
+💵 Saldo atual: ${fmt(saldo)}
+
+📈 Receitas: ${fmt(rec)}
+   • Juros: ${fmt(juros)}
+📉 Despesas pagas: ${fmt(dep)}
+⏳ Pendente: ${fmt(pend)}
+
+📊 Resultado: ${fmt(resultado)}
+${resultado >= 0 ? '✅ Mês positivo' : '⚠️ Mês negativo'}
+
+✅ Gastos necessários: ${fmt(necess)}
+❌ Gastos desnecessários: ${fmt(desnec)}
+${(necess+desnec) > 0 ? `📊 % desnecessário: ${((desnec/(necess+desnec))*100).toFixed(1)}%` : ''}
+
+━━━━━━━━━━━━━━━━━━━
+Gerado em ${new Date().toLocaleString('pt-BR')}`;
+
+  showModal(`
+    <div class="modal-title">📋 Resumo de ${nome}/${y}</div>
+    <textarea class="form-textarea" id="resumo_text" style="min-height:300px;font-family:monospace;font-size:12px" readonly>${txt}</textarea>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+      <button class="btn btn-primary" onclick="document.getElementById('resumo_text').select();document.execCommand('copy');showToast('Copiado!')">📋 Copiar</button>
+    </div>
+  `);
 }
 
 // ============================================================
@@ -1403,28 +1797,326 @@ function renderEmprestimos() {
         const totalReceber = (e.valor || 0) * (1 + (e.juros || 0));
         const tag = { 'Pago': 'success', 'Atrasado': 'danger', 'Em aberto': 'warning' }[status];
         return `
-        <div class="list-item" onclick="editEmprestimo(${e.id})">
-          <div class="list-item-header">
-            <div>
-              <div class="list-item-title">${e.nome}</div>
-              <div class="list-item-meta">
-                <span class="tag tag-${tag}">${status}</span>
-                <span class="tag tag-${e.origem === 'Próprio' ? 'accent' : 'purple'}">${e.origem}</span>
-                <span>📅 vence ${fmtDate(e.dataAcordada)}</span>
+        <div class="list-item">
+          <div onclick="openEmprestimoDetail(${e.id})" style="cursor:pointer">
+            <div class="list-item-header">
+              <div>
+                <div class="list-item-title">${e.nome}</div>
+                <div class="list-item-meta">
+                  <span class="tag tag-${tag}">${status}</span>
+                  <span class="tag tag-${e.origem === 'Próprio' ? 'accent' : 'purple'}">${e.origem}</span>
+                  <span>📅 vence ${fmtDate(e.dataAcordada)}</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div class="list-item-value">${fmt(totalReceber)}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${fmt(e.valor)} + ${((e.juros || 0)*100).toFixed(0)}%</div>
               </div>
             </div>
-            <div style="text-align:right">
-              <div class="list-item-value">${fmt(totalReceber)}</div>
-              <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${fmt(e.valor)} + ${((e.juros || 0)*100).toFixed(0)}%</div>
-            </div>
           </div>
+          ${status !== 'Pago' ? `
+            <div style="display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">
+              <button class="btn btn-secondary" style="flex:1;padding:6px 10px;font-size:12px" onclick="event.stopPropagation();markEmprestimoPago(${e.id})">✓ Marcar pago</button>
+              <button class="btn btn-secondary" style="flex:1;padding:6px 10px;font-size:12px" onclick="event.stopPropagation();copyMsgCobranca(${e.id})">💬 Mensagem</button>
+              <button class="btn btn-secondary" style="padding:6px 10px;font-size:12px" onclick="event.stopPropagation();editEmprestimo(${e.id})">✏️</button>
+            </div>
+          ` : ''}
         </div>
       `}).join('')}
     </div>
   `;
 }
 
+function markEmprestimoPago(id) {
+  const e = DATA.emprestimos.find(x => x.id === id);
+  if (!e) return;
+  if (!confirm(`Marcar empréstimo de ${e.nome} (${fmt(e.valor)}) como pago HOJE?`)) return;
+  e.dataPgto = todayISO();
+  saveData();
+  render();
+  showToast('Empréstimo marcado como pago ✓');
+}
+
+function copyMsgCobranca(id) {
+  const e = DATA.emprestimos.find(x => x.id === id);
+  if (!e) return;
+  const total = (e.valor || 0) * (1 + (e.juros || 0));
+  let msg = DATA.msgCobranca || 'Oi {nome}, hoje vence o pagamento de R$ {valor}. Pode confirmar?';
+  msg = msg.replace(/{nome}/g, e.nome.split(' ')[0])
+           .replace(/{valor}/g, total.toFixed(2).replace('.', ','))
+           .replace(/{capital}/g, (e.valor || 0).toFixed(2).replace('.', ','))
+           .replace(/{juros}/g, ((e.valor || 0) * (e.juros || 0)).toFixed(2).replace('.', ','))
+           .replace(/{vencimento}/g, fmtDate(e.dataAcordada));
+  
+  navigator.clipboard.writeText(msg).then(() => {
+    showToast('Mensagem copiada! Cole no WhatsApp');
+  }).catch(() => {
+    // Fallback: mostrar num modal pra copiar manual
+    showModal(`
+      <div class="modal-title">💬 Mensagem de cobrança</div>
+      <div class="form-group">
+        <textarea class="form-textarea" id="msg_copy" style="min-height:120px" readonly>${msg}</textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()">Fechar</button>
+        <button class="btn btn-primary" onclick="document.getElementById('msg_copy').select();document.execCommand('copy');showToast('Copiado!');closeModal()">Copiar</button>
+      </div>
+    `);
+  });
+}
+
+function openEmprestimoDetail(id) {
+  const e = DATA.emprestimos.find(x => x.id === id);
+  if (!e) return;
+  const status = getStatus(e);
+  const tag = { 'Pago': 'success', 'Atrasado': 'danger', 'Em aberto': 'warning' }[status];
+  const total = (e.valor || 0) * (1 + (e.juros || 0));
+  const lucro = (e.valor || 0) * (e.juros || 0);
+  
+  // Dias até vencer ou em atraso
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const venc = parseDate(e.dataAcordada);
+  let diasInfo = '';
+  if (status === 'Pago') {
+    diasInfo = `Pago em ${fmtDate(e.dataPgto)}`;
+  } else if (venc) {
+    const diff = Math.floor((venc - hoje) / (1000*60*60*24));
+    if (diff < 0) diasInfo = `<span style="color:var(--danger)">${Math.abs(diff)} dias em atraso</span>`;
+    else if (diff === 0) diasInfo = `<span style="color:var(--warning)">Vence HOJE</span>`;
+    else diasInfo = `Vence em ${diff} dias`;
+  }
+  
+  showModal(`
+    <div class="modal-title">📄 Detalhes do empréstimo</div>
+    
+    <div style="background:var(--bg);padding:12px;border-radius:var(--radius-sm);margin-bottom:12px">
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px">${e.nome}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="tag tag-${tag}">${status}</span>
+        <span class="tag tag-${e.origem === 'Próprio' ? 'accent' : 'purple'}">${e.origem}</span>
+      </div>
+      ${e.contato ? `<div style="font-size:12px;color:var(--text-muted)">📱 ${e.contato}</div>` : ''}
+    </div>
+    
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Capital</div>
+        <div style="font-weight:700;font-size:16px">${fmt(e.valor)}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Juros (${((e.juros || 0)*100).toFixed(0)}%)</div>
+        <div style="font-weight:700;font-size:16px;color:var(--success)">${fmt(lucro)}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Total a receber</div>
+        <div style="font-weight:700;font-size:16px;color:var(--accent)">${fmt(total)}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Status</div>
+        <div style="font-weight:700;font-size:13px">${diasInfo}</div>
+      </div>
+    </div>
+    
+    <div style="background:var(--bg);padding:10px;border-radius:var(--radius-sm);margin-bottom:12px;font-size:13px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="color:var(--text-muted)">Emprestei em:</span>
+        <span>${fmtDate(e.dataEmp)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+        <span style="color:var(--text-muted)">Acordado pra:</span>
+        <span>${fmtDate(e.dataAcordada)}</span>
+      </div>
+      ${e.donoTerceiro ? `<div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted)">Capital de:</span><span>${e.donoTerceiro}</span></div>` : ''}
+      ${e.obs ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);color:var(--text-secondary);font-size:12px;font-style:italic">${e.obs}</div>` : ''}
+    </div>
+    
+    <div class="modal-actions">
+      ${status !== 'Pago' ? `<button class="btn btn-primary" onclick="closeModal();markEmprestimoPago(${id})">✓ Marcar pago</button>` : ''}
+      <button class="btn btn-secondary" onclick="closeModal();copyMsgCobranca(${id})">💬 Mensagem</button>
+      <button class="btn btn-secondary" onclick="closeModal();editEmprestimo(${id})">✏️ Editar</button>
+    </div>
+  `);
+}
+
 // ============================================================
+// PAGE: CLIENTES
+// ============================================================
+function renderClientes() {
+  if (!DATA.clientes) DATA.clientes = [];
+  
+  // Auto-cadastrar clientes a partir dos empréstimos
+  autoSyncClientes();
+  
+  // Calcular stats por cliente
+  const stats = {};
+  DATA.clientes.forEach(c => {
+    stats[c.id] = {
+      total: 0,
+      pago: 0,
+      emAberto: 0,
+      jurosGanhos: 0,
+      jurosAReceber: 0,
+      qtdEmp: 0,
+      atrasados: 0,
+    };
+  });
+  
+  DATA.emprestimos.forEach(e => {
+    const cli = DATA.clientes.find(c => c.nome === e.nome);
+    if (!cli) return;
+    const s = stats[cli.id];
+    s.total += e.valor || 0;
+    s.qtdEmp++;
+    const st = getStatus(e);
+    if (st === 'Pago') {
+      s.pago += e.valor || 0;
+      s.jurosGanhos += (e.valor || 0) * (e.juros || 0);
+    } else {
+      s.emAberto += e.valor || 0;
+      s.jurosAReceber += (e.valor || 0) * (e.juros || 0);
+      if (st === 'Atrasado') s.atrasados++;
+    }
+  });
+  
+  if (DATA.clientes.length === 0) {
+    return `<div class="empty"><div class="empty-icon">👥</div><div>Nenhum cliente cadastrado</div><div style="margin-top:8px;font-size:13px">Toque no + pra adicionar</div></div>`;
+  }
+  
+  // Ordenar por valor total emprestado
+  const sorted = [...DATA.clientes].sort((a, b) => (stats[b.id]?.total || 0) - (stats[a.id]?.total || 0));
+  
+  return `
+    <div class="section">
+      <div class="section-title">
+        <span>Clientes</span>
+        <span style="color:var(--text-muted);font-size:12px;font-weight:normal">${DATA.clientes.length} cadastrados</span>
+      </div>
+      ${sorted.map(c => {
+        const s = stats[c.id];
+        return `
+          <div class="list-item" onclick="openClienteModal(${c.id})">
+            <div class="list-item-header">
+              <div>
+                <div class="list-item-title">${c.nome}</div>
+                <div class="list-item-meta">
+                  ${c.contato ? `<span>📱 ${c.contato}</span>` : ''}
+                  <span>${s.qtdEmp} empréstimo${s.qtdEmp !== 1 ? 's' : ''}</span>
+                  ${s.atrasados > 0 ? `<span class="tag tag-danger">${s.atrasados} atrasado${s.atrasados !== 1 ? 's' : ''}</span>` : ''}
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-weight:700">${fmt(s.total)}</div>
+                <div style="font-size:11px;color:var(--success);margin-top:2px">+${fmt(s.jurosGanhos)} juros</div>
+              </div>
+            </div>
+            ${s.emAberto > 0 ? `
+              <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:12px;display:flex;justify-content:space-between">
+                <span style="color:var(--text-muted)">Em aberto:</span>
+                <span style="color:var(--warning);font-weight:600">${fmt(s.emAberto)}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+  `;
+}
+
+function autoSyncClientes() {
+  if (!DATA.clientes) DATA.clientes = [];
+  const nomesExistentes = new Set(DATA.clientes.map(c => c.nome));
+  DATA.emprestimos.forEach(e => {
+    if (!nomesExistentes.has(e.nome)) {
+      DATA.clientes.push({
+        id: nextId(DATA.clientes),
+        nome: e.nome,
+        contato: e.contato || '',
+        obs: ''
+      });
+      nomesExistentes.add(e.nome);
+    }
+  });
+  saveData();
+}
+
+function openClienteModal(id) {
+  const c = id ? DATA.clientes.find(x => x.id === id) : { nome: '', contato: '', obs: '' };
+  const isEdit = !!id;
+  
+  showModal(`
+    <div class="modal-title">${isEdit ? '✏️ Editar' : '➕ Novo'} Cliente</div>
+    <div class="form-group">
+      <label class="form-label">Nome *</label>
+      <input class="form-input" type="text" id="c_nome" value="${c.nome || ''}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contato (WhatsApp)</label>
+      <input class="form-input" type="tel" id="c_contato" value="${c.contato || ''}" inputmode="tel">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observações</label>
+      <input class="form-input" type="text" id="c_obs" value="${c.obs || ''}">
+    </div>
+    <div class="modal-actions">
+      ${isEdit ? `<button class="btn btn-danger" onclick="deleteCliente(${id})">Excluir</button>` : ''}
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCliente(${isEdit ? id : 'null'})">Salvar</button>
+    </div>
+  `);
+}
+
+function saveCliente(id) {
+  const nome = document.getElementById('c_nome').value.trim();
+  if (!nome) { showToast('Nome obrigatório'); return; }
+  
+  const data = {
+    nome,
+    contato: document.getElementById('c_contato').value,
+    obs: document.getElementById('c_obs').value,
+  };
+  
+  const nomeAntigo = id ? DATA.clientes.find(x => x.id === id)?.nome : null;
+  
+  if (id) {
+    const idx = DATA.clientes.findIndex(x => x.id === id);
+    if (idx >= 0) DATA.clientes[idx] = { ...DATA.clientes[idx], ...data };
+    // Se mudou o nome, atualizar empréstimos
+    if (nomeAntigo && nomeAntigo !== nome) {
+      DATA.emprestimos.forEach(e => {
+        if (e.nome === nomeAntigo) {
+          e.nome = nome;
+          e.contato = data.contato;
+        }
+      });
+    }
+  } else {
+    DATA.clientes.push({ id: nextId(DATA.clientes), ...data });
+  }
+  
+  saveData();
+  closeModal();
+  render();
+  showToast(id ? 'Cliente atualizado' : 'Cliente adicionado');
+}
+
+function deleteCliente(id) {
+  const c = DATA.clientes.find(x => x.id === id);
+  if (!c) return;
+  const empCount = DATA.emprestimos.filter(e => e.nome === c.nome).length;
+  if (empCount > 0) {
+    if (!confirm(`Esse cliente tem ${empCount} empréstimo(s) vinculado(s). Excluir mesmo? (empréstimos serão mantidos com o nome)`)) return;
+  } else {
+    if (!confirm(`Excluir cliente "${c.nome}"?`)) return;
+  }
+  DATA.clientes = DATA.clientes.filter(x => x.id !== id);
+  saveData();
+  closeModal();
+  render();
+  showToast('Cliente excluído');
+}
+
+// ============================================================
+// PAGE: CAPITAIS// ============================================================
 // PAGE: CAPITAIS
 // ============================================================
 function renderCapitais() {
@@ -1629,11 +2321,12 @@ function renderPatrimonio() {
 // ============================================================
 function renderAnalise() {
   const ano = CURRENT_PERIOD.year;
+  const m = CURRENT_PERIOD.month;
   const dados = MESES_NOMES.map((mes, i) => {
-    const m = i + 1;
-    const rec = calcReceitasMes(m, ano);
-    const desp = calcDespesasPagas(m, ano);
-    const juros = calcReceitasMes(m, ano, 'Juros');
+    const mi = i + 1;
+    const rec = calcReceitasMes(mi, ano);
+    const desp = calcDespesasPagas(mi, ano);
+    const juros = calcReceitasMes(mi, ano, 'Juros');
     return { mes, rec, desp, resultado: rec - desp, juros };
   });
   
@@ -1644,9 +2337,32 @@ function renderAnalise() {
     juros: dados.reduce((s,d) => s + d.juros, 0),
   };
   
-  // Chart de receitas e despesas
   const maxVal = Math.max(...dados.map(d => Math.max(d.rec, d.desp)), 100);
   const chartHTML = renderBarChart(dados.map(d => ({ label: d.mes.substring(0,3), values: [d.rec, d.desp] })), ['var(--success)', 'var(--danger)'], maxVal);
+  
+  // === GRÁFICO CLIENTES DO MÊS ===
+  // Empréstimos do mês (data de empréstimo no mês selecionado)
+  const empsMes = DATA.emprestimos.filter(e => {
+    if (!e.dataEmp) return false;
+    const d = parseDate(e.dataEmp);
+    return d.getMonth()+1 === m && d.getFullYear() === ano;
+  });
+  
+  // Agrupar por cliente
+  const porCliente = {};
+  empsMes.forEach(e => {
+    if (!porCliente[e.nome]) porCliente[e.nome] = { capital: 0, juros: 0 };
+    porCliente[e.nome].capital += e.valor || 0;
+    porCliente[e.nome].juros += (e.valor || 0) * (e.juros || 0);
+  });
+  
+  // Ordenar por capital desc, top 10
+  const clientesArr = Object.entries(porCliente)
+    .map(([nome, v]) => ({ nome, ...v }))
+    .sort((a,b) => b.capital - a.capital)
+    .slice(0, 10);
+  
+  const maxCli = Math.max(...clientesArr.map(c => Math.max(c.capital, c.juros)), 100);
   
   return `
     <div class="section">
@@ -1656,6 +2372,42 @@ function renderAnalise() {
         <span>🟢 Receitas</span>
         <span>🔴 Despesas</span>
       </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">👥 Top clientes — ${MESES_NOMES[m-1]}/${ano}</div>
+      ${clientesArr.length === 0 ? `
+        <div style="text-align:center;padding:20px;color:var(--text-muted)">Nenhum empréstimo nesse mês</div>
+      ` : `
+        ${renderClientesChart(clientesArr, maxCli)}
+        <div style="display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:12px;color:var(--text-muted)">
+          <span>🔵 Capital pego</span>
+          <span>🟢 Juros gerados</span>
+        </div>
+        
+        <div class="table-wrapper" style="margin-top:16px">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th class="num">Capital</th>
+                <th class="num">Juros</th>
+                <th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${clientesArr.map(c => `
+                <tr>
+                  <td><strong>${c.nome.split(' ')[0]}</strong></td>
+                  <td class="num">${fmt(c.capital)}</td>
+                  <td class="num" style="color:var(--success)">${fmt(c.juros)}</td>
+                  <td class="num"><strong>${fmt(c.capital + c.juros)}</strong></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
     </div>
     
     <div class="section">
@@ -1695,6 +2447,49 @@ function renderAnalise() {
   `;
 }
 
+function renderClientesChart(clientes, maxVal) {
+  // Gráfico horizontal de barras duplas (capital + juros)
+  const W = 320, barH = 28, gap = 16, headerH = 4, footerH = 4;
+  const H = clientes.length * (barH * 2 + gap) + headerH + footerH;
+  
+  let bars = '';
+  let labels = '';
+  let y = headerH;
+  
+  clientes.forEach((c) => {
+    const wCap = maxVal > 0 ? (c.capital / maxVal) * (W - 100) : 0;
+    const wJur = maxVal > 0 ? (c.juros / maxVal) * (W - 100) : 0;
+    const labelX = 4;
+    const barX = 88;
+    
+    // Label do cliente
+    labels += `<text class="chart-label" x="${labelX}" y="${y + barH/2 + 4}" style="font-weight:600;font-size:11px;fill:var(--text)">${c.nome.split(' ')[0].substring(0,10)}</text>`;
+    
+    // Barra capital
+    bars += `<rect x="${barX}" y="${y}" width="${wCap}" height="${barH - 4}" fill="var(--accent)" rx="2"></rect>`;
+    bars += `<text class="chart-label" x="${barX + wCap + 4}" y="${y + (barH-4)/2 + 4}" style="font-size:10px;fill:var(--text-secondary)">${fmtShort(c.capital)}</text>`;
+    
+    // Barra juros (logo abaixo)
+    bars += `<rect x="${barX}" y="${y + barH}" width="${wJur}" height="${barH - 4}" fill="var(--success)" rx="2"></rect>`;
+    bars += `<text class="chart-label" x="${barX + wJur + 4}" y="${y + barH + (barH-4)/2 + 4}" style="font-size:10px;fill:var(--text-secondary)">${fmtShort(c.juros)}</text>`;
+    
+    y += barH * 2 + gap;
+  });
+  
+  return `<div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+    <svg width="100%" height="${H}" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" style="min-width:300px">
+      ${labels}
+      ${bars}
+    </svg>
+  </div>`;
+}
+
+function fmtShort(n) {
+  if (n === 0) return 'R$ 0';
+  if (n >= 1000) return 'R$ ' + (n/1000).toFixed(1).replace('.', ',') + 'k';
+  return 'R$ ' + n.toFixed(0);
+}
+
 function renderBarChart(data, colors, maxVal) {
   const W = 320, H = 180;
   const barGroupWidth = (W - 20) / data.length;
@@ -1724,7 +2519,6 @@ function renderBarChart(data, colors, maxVal) {
 // PAGE: DEVOLUÇÕES
 // ============================================================
 function renderDevolucoes() {
-  // Garantir estruturas
   if (!DATA.devolucoes) DATA.devolucoes = [];
   if (!DATA.donosTerceiros) DATA.donosTerceiros = ['Pai', 'Santander Pix Crédito'];
   
@@ -1732,10 +2526,12 @@ function renderDevolucoes() {
   const saldosPorDono = {};
   DATA.donosTerceiros.forEach(dono => {
     saldosPorDono[dono] = {
-      capitalRecebido: 0, // capital de terceiro pago pelo cliente (entrou na conta)
-      jaDevolvido: 0,     // devoluções feitas pra esse dono
-      capitalEmAberto: 0, // capital ainda emprestado
-      jurosRecebidos: 0,  // juros já recebidos desse dono
+      capitalEmAberto: 0,    // capital ainda na mão dos clientes (terceiro)
+      capitalRecebido: 0,    // cliente já pagou, dinheiro na minha conta
+      jaDevolvido: 0,        // já devolvi pro dono
+      jurosRecebidos: 0,     // juros já recebidos desse dono
+      jurosAReceber: 0,      // juros a receber (em aberto)
+      qtdEmprestimos: 0,
     };
   });
   
@@ -1743,8 +2539,9 @@ function renderDevolucoes() {
     if (e.origem !== 'Terceiro') return;
     const dono = e.donoTerceiro || 'Pai';
     if (!saldosPorDono[dono]) {
-      saldosPorDono[dono] = { capitalRecebido: 0, jaDevolvido: 0, capitalEmAberto: 0, jurosRecebidos: 0 };
+      saldosPorDono[dono] = { capitalEmAberto:0, capitalRecebido:0, jaDevolvido:0, jurosRecebidos:0, jurosAReceber:0, qtdEmprestimos:0 };
     }
+    saldosPorDono[dono].qtdEmprestimos++;
     
     const status = getStatus(e);
     if (status === 'Pago') {
@@ -1752,73 +2549,96 @@ function renderDevolucoes() {
       saldosPorDono[dono].jurosRecebidos += (e.valor || 0) * (e.juros || 0);
     } else {
       saldosPorDono[dono].capitalEmAberto += e.valor || 0;
+      saldosPorDono[dono].jurosAReceber += (e.valor || 0) * (e.juros || 0);
     }
   });
   
   DATA.devolucoes.forEach(d => {
-    if (saldosPorDono[d.dono]) {
-      saldosPorDono[d.dono].jaDevolvido += d.valor || 0;
-    }
+    if (saldosPorDono[d.dono]) saldosPorDono[d.dono].jaDevolvido += d.valor || 0;
   });
   
-  // Calcular pendentes
-  let totalPendente = 0;
-  let temPendencia = false;
+  let totalUrgente = 0;     // já voltou pra mim, devolver agora
+  let totalFuturo = 0;       // ainda tá com clientes, vai voltar
   Object.keys(saldosPorDono).forEach(dono => {
     const s = saldosPorDono[dono];
-    s.pendente = s.capitalRecebido - s.jaDevolvido;
-    if (s.pendente > 0.01) {
-      totalPendente += s.pendente;
-      temPendencia = true;
-    }
+    s.pendenteUrgente = s.capitalRecebido - s.jaDevolvido;
+    s.pendenteFuturo = s.capitalEmAberto;
+    s.totalPendente = s.pendenteUrgente + s.pendenteFuturo;
+    if (s.pendenteUrgente > 0.01) totalUrgente += s.pendenteUrgente;
+    totalFuturo += s.pendenteFuturo;
   });
   
   return `
-    ${temPendencia ? `
+    ${totalUrgente > 0.01 ? `
       <div class="section" style="border-color:var(--danger);background:rgba(248,113,113,0.05)">
-        <div class="section-title" style="color:var(--danger)">⚠️ Capital a devolver</div>
-        <div style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:4px">${fmt(totalPendente)}</div>
-        <div style="font-size:12px;color:var(--text-secondary)">Esse valor está na sua conta, mas pertence a outras pessoas. Devolva o quanto antes.</div>
+        <div class="section-title" style="color:var(--danger)">⚠️ Devolver AGORA</div>
+        <div style="font-size:24px;font-weight:700;color:var(--danger);margin-bottom:4px">${fmt(totalUrgente)}</div>
+        <div style="font-size:12px;color:var(--text-secondary)">Esse dinheiro já voltou pra sua conta — devolva o quanto antes pro dono</div>
       </div>
-    ` : `
+    ` : ''}
+    
+    ${totalFuturo > 0.01 ? `
+      <div class="section" style="border-color:var(--warning);background:rgba(251,191,36,0.05)">
+        <div class="section-title" style="color:var(--warning)">📊 Total que vai voltar</div>
+        <div style="font-size:24px;font-weight:700;color:var(--warning);margin-bottom:4px">${fmt(totalFuturo)}</div>
+        <div style="font-size:12px;color:var(--text-secondary)">Ainda tá com os clientes. Quando voltar, devolve pro dono.</div>
+      </div>
+    ` : ''}
+    
+    ${totalUrgente < 0.01 && totalFuturo < 0.01 ? `
       <div class="section" style="background:rgba(52,211,153,0.05);border-color:var(--success)">
         <div style="text-align:center;padding:8px;color:var(--success);font-weight:600">✓ Nenhuma devolução pendente</div>
       </div>
-    `}
+    ` : ''}
     
     ${Object.keys(saldosPorDono).map(dono => {
       const s = saldosPorDono[dono];
-      const cor = s.pendente > 0.01 ? 'var(--danger)' : 'var(--success)';
+      const corUrg = s.pendenteUrgente > 0.01 ? 'var(--danger)' : 'var(--text-muted)';
+      const safeName = dono.replace(/'/g, "\\'");
       return `
         <div class="section">
           <div class="section-title">
             <span>👤 ${dono}</span>
-            <button class="icon-btn" onclick="openDevolucaoModal(null, '${dono.replace(/'/g, "\\'")}')">+ Devolver</button>
+            <div style="display:flex;gap:6px">
+              <button class="icon-btn" onclick="editDonoTerceiro('${safeName}')" title="Editar">✏️</button>
+              <button class="icon-btn" onclick="deleteDonoTerceiro('${safeName}')" title="Excluir">🗑️</button>
+              <button class="icon-btn" onclick="openDevolucaoModal(null, '${safeName}')">+ Devolver</button>
+            </div>
           </div>
           
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
             <div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Em aberto (com clientes)</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">🟡 Em aberto</div>
               <div style="font-weight:600">${fmt(s.capitalEmAberto)}</div>
+              <div style="font-size:10px;color:var(--text-muted)">com clientes</div>
             </div>
             <div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Já recebido (cliente pagou)</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">📥 Já recebido</div>
               <div style="font-weight:600">${fmt(s.capitalRecebido)}</div>
+              <div style="font-size:10px;color:var(--text-muted)">na sua conta</div>
             </div>
             <div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Já devolvido pra ele</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">✓ Já devolvido</div>
               <div style="color:var(--success);font-weight:600">${fmt(s.jaDevolvido)}</div>
             </div>
             <div>
-              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">Pendente devolver</div>
-              <div style="color:${cor};font-weight:700;font-size:16px">${fmt(s.pendente)}</div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">🔴 Devolver agora</div>
+              <div style="color:${corUrg};font-weight:700;font-size:16px">${fmt(s.pendenteUrgente)}</div>
             </div>
           </div>
           
-          <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px">
-            <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px">💰 Meu lucro com esse dono</div>
-            <div style="color:var(--success);font-weight:600">${fmt(s.jurosRecebidos)} de juros recebidos</div>
+          <div style="border-top:1px solid var(--border);padding-top:8px;margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">💰 Juros recebidos</div>
+              <div style="color:var(--success);font-weight:600">${fmt(s.jurosRecebidos)}</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase">⏳ Juros a receber</div>
+              <div style="color:var(--success);font-weight:600">${fmt(s.jurosAReceber)}</div>
+            </div>
           </div>
+          
+          <div style="margin-top:8px;font-size:11px;color:var(--text-muted)">${s.qtdEmprestimos} empréstimo${s.qtdEmprestimos !== 1 ? 's' : ''}</div>
         </div>
       `;
     }).join('')}
@@ -1867,6 +2687,45 @@ function addDonoTerceiro() {
   showToast('Dono adicionado: ' + nome);
 }
 
+function editDonoTerceiro(nomeAtual) {
+  const novoNome = prompt('Novo nome:', nomeAtual);
+  if (!novoNome || !novoNome.trim() || novoNome.trim() === nomeAtual) return;
+  const novo = novoNome.trim();
+  if (DATA.donosTerceiros.includes(novo)) {
+    showToast('Já existe um dono com esse nome');
+    return;
+  }
+  // Renomear no array de donos
+  const idx = DATA.donosTerceiros.indexOf(nomeAtual);
+  if (idx >= 0) DATA.donosTerceiros[idx] = novo;
+  // Renomear nos empréstimos
+  DATA.emprestimos.forEach(e => {
+    if (e.donoTerceiro === nomeAtual) e.donoTerceiro = novo;
+  });
+  // Renomear nas devoluções
+  DATA.devolucoes.forEach(d => {
+    if (d.dono === nomeAtual) d.dono = novo;
+  });
+  saveData();
+  render();
+  showToast('Dono renomeado');
+}
+
+function deleteDonoTerceiro(nome) {
+  // Verificar se tem empréstimos vinculados
+  const vinculados = DATA.emprestimos.filter(e => e.donoTerceiro === nome).length;
+  const devs = DATA.devolucoes.filter(d => d.dono === nome).length;
+  if (vinculados > 0 || devs > 0) {
+    if (!confirm(`Esse dono tem ${vinculados} empréstimo(s) e ${devs} devolução(ões) vinculadas. Excluir mesmo assim? (os registros serão mantidos com o nome)`)) return;
+  } else {
+    if (!confirm(`Excluir o dono "${nome}"?`)) return;
+  }
+  DATA.donosTerceiros = DATA.donosTerceiros.filter(d => d !== nome);
+  saveData();
+  render();
+  showToast('Dono excluído');
+}
+
 function openDevolucaoModal(id, donoSugerido) {
   const d = id ? DATA.devolucoes.find(x => x.id === id) : {
     data: todayISO(),
@@ -1911,14 +2770,12 @@ function saveDevolucao(id) {
     valor: parseFloat(document.getElementById('dv_valor').value) || 0,
     obs: document.getElementById('dv_obs').value,
   };
-  
   if (id) {
     const idx = DATA.devolucoes.findIndex(x => x.id === id);
     if (idx >= 0) DATA.devolucoes[idx] = { ...DATA.devolucoes[idx], ...data };
   } else {
     DATA.devolucoes.push({ id: nextId(DATA.devolucoes), ...data });
   }
-  
   saveData();
   closeModal();
   render();
@@ -1938,17 +2795,27 @@ function deleteDevolucao(id) {
 // PAGE: CONFIG
 // ============================================================
 function renderConfig() {
+  if (!DATA.contas) DATA.contas = ['Inter', 'Itaú', 'Mercado Pago', 'Santander'];
+  if (!DATA.userName) DATA.userName = 'Vinicius Candido';
+  
   return `
     <div class="section">
-      <div class="section-title">⚙️ Configurações</div>
-      
+      <div class="section-title">👤 Perfil</div>
+      <div class="form-group">
+        <label class="form-label">Seu nome (aparece no header)</label>
+        <input class="form-input" type="text" value="${DATA.userName}"
+          onchange="DATA.userName = this.value; saveData(); render();">
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">⚙️ Saldo base</div>
       <div class="form-group">
         <label class="form-label">Saldo inicial em conta</label>
         <input class="form-input" type="number" step="0.01" value="${DATA.config.saldoInicial}"
           onchange="DATA.config.saldoInicial = parseFloat(this.value) || 0; saveData(); render();">
-        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Saldo na conta no fim do dia da Data de corte (antes de qualquer movimentação posterior)</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px">Saldo na conta no fim do dia da Data de corte</div>
       </div>
-      
       <div class="form-group">
         <label class="form-label">Data de corte</label>
         <input class="form-input" type="date" value="${DATA.config.dataCorte}"
@@ -1958,21 +2825,118 @@ function renderConfig() {
     </div>
     
     <div class="section">
+      <div class="section-title">🔐 Segurança</div>
+      <button class="btn btn-secondary" onclick="trocarPin()" style="width:100%">🔑 Trocar PIN</button>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:8px">O PIN protege seu app de olhares curiosos</div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">💬 Mensagem de cobrança</div>
+      <div class="form-group">
+        <label class="form-label">Modelo da mensagem</label>
+        <textarea class="form-textarea" id="cfg_msg" style="min-height:100px"
+          onchange="DATA.msgCobranca = this.value; saveData()">${DATA.msgCobranca || ''}</textarea>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:6px">
+          Variáveis disponíveis:<br>
+          • <code>{nome}</code> — primeiro nome do cliente<br>
+          • <code>{valor}</code> — total a receber (capital + juros)<br>
+          • <code>{capital}</code> — só o valor emprestado<br>
+          • <code>{juros}</code> — só os juros<br>
+          • <code>{vencimento}</code> — data acordada<br>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <div class="section-title">🏦 Contas bancárias (opcional)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        ${DATA.contas.map(c => `
+          <span class="tag tag-accent" style="display:inline-flex;align-items:center;gap:6px">
+            ${c}
+            <button onclick="removeConta('${c.replace(/'/g, "\\'")}')" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:0;line-height:1">×</button>
+          </span>
+        `).join('')}
+      </div>
+      <button class="btn btn-secondary" onclick="addConta()" style="width:100%">+ Adicionar conta</button>
+      <div style="font-size:11px;color:var(--text-muted);margin-top:8px">Use ao lançar receitas/despesas pra ver totais por banco</div>
+    </div>
+    
+    <div class="section">
       <div class="section-title">📁 Dados</div>
       <button class="btn btn-secondary" onclick="exportData()" style="margin-bottom:8px;width:100%">📤 Exportar dados (.json)</button>
       <button class="btn btn-secondary" onclick="importData()" style="margin-bottom:8px;width:100%">📥 Importar dados (.json)</button>
       <button class="btn btn-danger" onclick="resetData()" style="width:100%">🗑️ Apagar tudo e começar do zero</button>
+      ${DATA.lastBackup ? `<div style="font-size:11px;color:var(--text-muted);margin-top:8px">Último backup: ${fmtDate(DATA.lastBackup)}</div>` : ''}
     </div>
     
     <div class="section">
       <div class="section-title">ℹ️ Sobre</div>
       <div style="font-size:13px;color:var(--text-secondary);line-height:1.6">
-        <p><strong>Vinicius Candido</strong> • App financeiro pessoal</p>
+        <p><strong>${DATA.userName || 'Vinicius'}</strong> • App financeiro pessoal</p>
         <p style="margin-top:8px">Os dados são salvos localmente no seu dispositivo. Use Exportar/Importar pra sincronizar entre celular e PC.</p>
-        <p style="margin-top:8px;color:var(--text-muted);font-size:11px">💡 Dica: faça backup regular usando Exportar.</p>
       </div>
     </div>
   `;
+}
+
+function addConta() {
+  const nome = prompt('Nome da conta (ex: Nubank, Inter, Itaú):');
+  if (!nome || !nome.trim()) return;
+  if (!DATA.contas) DATA.contas = [];
+  if (DATA.contas.includes(nome.trim())) { showToast('Já existe'); return; }
+  DATA.contas.push(nome.trim());
+  saveData();
+  render();
+  showToast('Conta adicionada');
+}
+
+function removeConta(nome) {
+  if (!confirm(`Remover conta "${nome}"?`)) return;
+  DATA.contas = DATA.contas.filter(c => c !== nome);
+  // Limpar referência nos lançamentos (opcional, mas seguro)
+  saveData();
+  render();
+  showToast('Conta removida');
+}
+
+function trocarPin() {
+  showModal(`
+    <div class="modal-title">🔐 Trocar PIN</div>
+    <div class="form-group">
+      <label class="form-label">PIN atual</label>
+      <input class="form-input" type="password" id="pin_old" inputmode="numeric" maxlength="8" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Novo PIN (4 a 8 dígitos)</label>
+      <input class="form-input" type="password" id="pin_new" inputmode="numeric" maxlength="8" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Confirmar novo PIN</label>
+      <input class="form-input" type="password" id="pin_new2" inputmode="numeric" maxlength="8" autocomplete="off">
+    </div>
+    <div id="pin_err" style="color:var(--danger);font-size:13px;margin-bottom:8px;height:18px"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmTrocarPin()">Trocar PIN</button>
+    </div>
+  `);
+}
+
+function confirmTrocarPin() {
+  const old = document.getElementById('pin_old').value;
+  const novo = document.getElementById('pin_new').value;
+  const novo2 = document.getElementById('pin_new2').value;
+  const err = document.getElementById('pin_err');
+  
+  if (simpleHash(old) !== DATA.pin) { err.textContent = 'PIN atual incorreto'; return; }
+  if (novo.length < 4 || novo.length > 8) { err.textContent = 'Novo PIN deve ter 4 a 8 dígitos'; return; }
+  if (!/^\d+$/.test(novo)) { err.textContent = 'PIN deve ser só números'; return; }
+  if (novo !== novo2) { err.textContent = 'Confirmação não confere'; return; }
+  
+  DATA.pin = simpleHash(novo);
+  saveData();
+  closeModal();
+  showToast('PIN alterado com sucesso');
 }
 
 // ============================================================
@@ -1987,6 +2951,7 @@ function openAddModal() {
     case 'investimentos': openInvestimentoModal(null); break;
     case 'metas': openAporteModal(); break;
     case 'devolucoes': openDevolucaoModal(null); break;
+    case 'clientes': openClienteModal(null); break;
   }
 }
 
@@ -2033,6 +2998,13 @@ function openReceitaModal(id) {
       <label class="form-label">Data de recebimento (preencher quando receber)</label>
       <input class="form-input" type="date" id="r_dataReceb" value="${r.dataReceb || ''}">
     </div>
+    <div class="form-group">
+      <label class="form-label">Conta (opcional)</label>
+      <select class="form-select" id="r_conta">
+        <option value="">— Não rastrear —</option>
+        ${(DATA.contas || []).map(co => `<option value="${co}" ${r.conta === co ? 'selected' : ''}>${co}</option>`).join('')}
+      </select>
+    </div>
     <div class="modal-actions">
       ${isEdit ? `<button class="btn btn-danger" onclick="deleteReceita(${id})">Excluir</button>` : ''}
       <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
@@ -2048,6 +3020,7 @@ function saveReceita(id) {
     valor: parseFloat(document.getElementById('r_valor').value) || null,
     descricao: document.getElementById('r_desc').value,
     dataReceb: document.getElementById('r_dataReceb').value || null,
+    conta: document.getElementById('r_conta')?.value || '',
   };
   
   if (id) {
@@ -2128,6 +3101,13 @@ function openDespesaModal(id) {
       </div>
     </div>
     <div class="form-group">
+      <label class="form-label">Conta (opcional)</label>
+      <select class="form-select" id="d_conta">
+        <option value="">— Não rastrear —</option>
+        ${(DATA.contas || []).map(co => `<option value="${co}" ${d.conta === co ? 'selected' : ''}>${co}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
       <label class="form-label">Descrição</label>
       <input class="form-input" type="text" id="d_desc" value="${d.desc || ''}">
     </div>
@@ -2153,6 +3133,7 @@ function saveDespesa(id) {
     necessario: document.getElementById('d_necessario').value,
     desc: document.getElementById('d_desc').value,
     dataPgto: document.getElementById('d_dataPgto').value || null,
+    conta: document.getElementById('d_conta')?.value || '',
   };
   
   if (id) {
@@ -2187,15 +3168,17 @@ function openEmprestimoModal(id) {
   };
   const isEdit = !!id;
   
+  if (!DATA.clientes) DATA.clientes = [];
+  
   showModal(`
     <div class="modal-title">${isEdit ? '✏️ Editar' : '➕ Novo'} Empréstimo</div>
     <div class="form-group">
-      <label class="form-label">Nome</label>
-      <input class="form-input" type="text" id="e_nome" value="${e.nome || ''}">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Contato (WhatsApp)</label>
-      <input class="form-input" type="tel" id="e_contato" value="${e.contato || ''}" inputmode="tel">
+      <label class="form-label">Cliente</label>
+      <select class="form-select" id="e_cliente_id" onchange="onEmprestimoClienteChange()">
+        <option value="">— Selecione um cliente —</option>
+        ${DATA.clientes.map(c => `<option value="${c.id}" ${c.nome === e.nome ? 'selected' : ''}>${c.nome}</option>`).join('')}
+        <option value="__new__">➕ Cadastrar novo cliente...</option>
+      </select>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -2246,11 +3229,72 @@ function openEmprestimoModal(id) {
   `);
 }
 
+function onEmprestimoClienteChange() {
+  const sel = document.getElementById('e_cliente_id');
+  if (sel.value === '__new__') {
+    sel.value = '';
+    closeModal();
+    setTimeout(() => openClienteModalThenEmprestimo(), 100);
+  }
+}
+
+function openClienteModalThenEmprestimo() {
+  // Abre modal de cliente, salva e depois reabre modal de empréstimo já com cliente selecionado
+  showModal(`
+    <div class="modal-title">➕ Novo Cliente</div>
+    <div class="form-group">
+      <label class="form-label">Nome *</label>
+      <input class="form-input" type="text" id="qc_nome" value="">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contato (WhatsApp)</label>
+      <input class="form-input" type="tel" id="qc_contato" value="" inputmode="tel">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal();openEmprestimoModal(null)">Voltar</button>
+      <button class="btn btn-primary" onclick="quickSaveClienteAndContinue()">Salvar e continuar</button>
+    </div>
+  `);
+}
+
+function quickSaveClienteAndContinue() {
+  const nome = document.getElementById('qc_nome').value.trim();
+  if (!nome) { showToast('Nome obrigatório'); return; }
+  const novo = {
+    id: nextId(DATA.clientes),
+    nome,
+    contato: document.getElementById('qc_contato').value,
+    obs: ''
+  };
+  DATA.clientes.push(novo);
+  saveData();
+  closeModal();
+  showToast('Cliente cadastrado');
+  // Abre o modal de empréstimo já com o novo cliente pré-selecionado
+  setTimeout(() => {
+    openEmprestimoModal(null);
+    setTimeout(() => {
+      const sel = document.getElementById('e_cliente_id');
+      if (sel) sel.value = novo.id;
+    }, 50);
+  }, 100);
+}
+
 function saveEmprestimo(id) {
   const origem = document.getElementById('e_origem').value;
+  const clienteId = document.getElementById('e_cliente_id').value;
+  if (!clienteId || clienteId === '__new__') {
+    showToast('Selecione um cliente');
+    return;
+  }
+  const cliente = DATA.clientes.find(c => c.id == clienteId);
+  if (!cliente) {
+    showToast('Cliente não encontrado');
+    return;
+  }
   const data = {
-    nome: document.getElementById('e_nome').value,
-    contato: document.getElementById('e_contato').value,
+    nome: cliente.nome,
+    contato: cliente.contato || '',
     dataEmp: document.getElementById('e_dataEmp').value || null,
     dataAcordada: document.getElementById('e_dataAcordada').value || null,
     dataPgto: document.getElementById('e_dataPgto').value || null,
@@ -2433,6 +3477,8 @@ function saveAporte() {
 // IMPORT / EXPORT
 // ============================================================
 function exportData() {
+  DATA.lastBackup = todayISO();
+  saveData();
   const json = JSON.stringify(DATA, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2611,6 +3657,18 @@ function unlock() {
   document.getElementById('app').style.display = 'flex';
   document.getElementById('fab').style.display = 'flex';
   render();
+  setTimeout(checkBackupReminder, 1500);
+}
+
+function checkBackupReminder() {
+  if (!DATA.lastBackup) return;
+  const last = parseDate(DATA.lastBackup);
+  if (!last) return;
+  const hoje = new Date(); hoje.setHours(0,0,0,0);
+  const diffDays = Math.floor((hoje - last) / (1000*60*60*24));
+  if (diffDays >= 7) {
+    showToast(`💾 Faz ${diffDays} dias sem backup. Considere exportar.`);
+  }
 }
 
 function showLockError(msg) {
@@ -2716,11 +3774,11 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeModal();
 });
 
-// Service Worker - habilita instalação como PWA
+// Service Worker pra funcionar offline
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js')
-    .then(() => console.log('SW registrado'))
-    .catch(err => console.log('SW erro:', err));
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(err => console.log('SW registration failed:', err));
+  });
 }
 </script>
 </body>
