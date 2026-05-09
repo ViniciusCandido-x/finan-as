@@ -1095,6 +1095,8 @@ const DEFAULT_DATA = {
   ],
   "investimentos": [],
   "metas": {
+    "nome": "Entrada do Carro",
+    "icone": "🚗",
     "valorMeta": 0,
     "aportes": []
   },
@@ -2215,6 +2217,11 @@ function renderInvestimentos() {
 // PAGE: METAS
 // ============================================================
 function renderMetas() {
+  if (!DATA.metas) DATA.metas = { nome: 'Minha Meta', icone: '🎯', valorMeta: 0, aportes: [] };
+  if (!DATA.metas.nome) DATA.metas.nome = 'Minha Meta';
+  if (!DATA.metas.icone) DATA.metas.icone = '🎯';
+  if (!DATA.metas.aportes) DATA.metas.aportes = [];
+  
   const acumulado = calcMetaAcumulada();
   const meta = DATA.metas.valorMeta || 0;
   const progresso = meta > 0 ? Math.min(acumulado / meta, 1) : 0;
@@ -2227,7 +2234,10 @@ function renderMetas() {
   
   return `
     <div class="section">
-      <div class="section-title">🚗 Meta: Entrada do Carro</div>
+      <div class="section-title">
+        <span>${DATA.metas.icone} ${DATA.metas.nome}</span>
+        <button class="icon-btn" onclick="editMetaInfo()" title="Editar meta">✏️</button>
+      </div>
       
       <div class="progress-ring">
         <svg class="progress-ring-svg" width="160" height="160">
@@ -2239,23 +2249,27 @@ function renderMetas() {
           <div style="font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Acumulado</div>
           <div style="font-size:24px;font-weight:700;color:var(--accent)">${fmt(acumulado)}</div>
           <div style="font-size:13px;color:var(--text-secondary);margin-top:4px">${(progresso*100).toFixed(0)}% de ${fmt(meta)}</div>
-          ${falta > 0 ? `<div style="font-size:12px;color:var(--warning);margin-top:4px">Faltam ${fmt(falta)}</div>` : ''}
+          ${falta > 0 ? `<div style="font-size:12px;color:var(--warning);margin-top:4px">Faltam ${fmt(falta)}</div>` : meta > 0 ? `<div style="font-size:12px;color:var(--success);margin-top:4px">🎉 Meta atingida!</div>` : ''}
         </div>
       </div>
       
-      <div class="form-group" style="margin-top:16px">
-        <label class="form-label">Valor da meta</label>
-        <input class="form-input" type="number" step="0.01" id="metaValor" value="${meta}" 
-          onchange="DATA.metas.valorMeta = parseFloat(this.value) || 0; saveData(); render();">
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn btn-secondary" onclick="resetMeta()" style="flex:1;padding:10px;font-size:12px">🔄 Resetar / Nova meta</button>
       </div>
     </div>
     
     <div class="section">
-      <div class="section-title">Aportes mensais</div>
-      ${(DATA.metas.aportes || []).length === 0 ? `
+      <div class="section-title">
+        <span>Aportes</span>
+        ${DATA.metas.aportes.length > 0 ? `<span style="color:var(--text-muted);font-size:12px;font-weight:normal">${DATA.metas.aportes.length} aporte${DATA.metas.aportes.length !== 1 ? 's' : ''}</span>` : ''}
+      </div>
+      ${DATA.metas.aportes.length === 0 ? `
         <div style="text-align:center;padding:20px;color:var(--text-muted)">Nenhum aporte ainda. Toque no + pra adicionar.</div>
-      ` : (DATA.metas.aportes || []).map((a, i) => `
-        <div class="list-item">
+      ` : [...DATA.metas.aportes].reverse().map((a, i) => {
+        // Original index (a.id se tiver, senão o índice no array original)
+        const realIdx = DATA.metas.aportes.findIndex(x => x === a);
+        return `
+        <div class="list-item" onclick="editAporte(${realIdx})">
           <div class="list-item-header">
             <div>
               <div class="list-item-title">${a.mes || '-'}</div>
@@ -2267,9 +2281,160 @@ function renderMetas() {
             <div class="list-item-value" style="color:var(--success)">${fmt(a.valor)}</div>
           </div>
         </div>
-      `).join('')}
+      `}).join('')}
     </div>
   `;
+}
+
+function editMetaInfo() {
+  showModal(`
+    <div class="modal-title">✏️ Editar Meta</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Ícone (1 emoji)</label>
+        <input class="form-input" type="text" id="meta_icone" maxlength="2" value="${DATA.metas.icone || '🎯'}" style="text-align:center;font-size:24px">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Valor da meta (R$)</label>
+        <input class="form-input" type="number" step="0.01" id="meta_valor" value="${DATA.metas.valorMeta || ''}" inputmode="decimal">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Nome da meta</label>
+      <input class="form-input" type="text" id="meta_nome" value="${DATA.metas.nome || ''}" placeholder="Ex: Entrada do carro, Viagem...">
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:12px">
+      💡 Sugestões de ícone: 🚗 🏠 ✈️ 💻 📱 💍 🎓 🏖️ 💼 🎯
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveMetaInfo()">Salvar</button>
+    </div>
+  `);
+}
+
+function saveMetaInfo() {
+  const nome = document.getElementById('meta_nome').value.trim();
+  const icone = document.getElementById('meta_icone').value.trim() || '🎯';
+  const valor = parseFloat(document.getElementById('meta_valor').value) || 0;
+  
+  if (!nome) { showToast('Nome obrigatório'); return; }
+  
+  DATA.metas.nome = nome;
+  DATA.metas.icone = icone;
+  DATA.metas.valorMeta = valor;
+  saveData();
+  closeModal();
+  render();
+  showToast('Meta atualizada');
+}
+
+function resetMeta() {
+  const aportes = DATA.metas.aportes || [];
+  const acumulado = aportes.reduce((s, a) => s + (a.valor || 0), 0);
+  
+  let msg = 'Tem certeza que quer resetar a meta?';
+  if (aportes.length > 0) {
+    msg = `Você tem ${aportes.length} aporte(s) totalizando ${fmt(acumulado)}.\n\nO que quer fazer?`;
+  }
+  
+  showModal(`
+    <div class="modal-title">🔄 Resetar Meta</div>
+    <div style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;line-height:1.5">
+      ${aportes.length > 0 
+        ? `Você tem <strong>${aportes.length} aporte${aportes.length !== 1 ? 's' : ''}</strong> totalizando <strong style="color:var(--success)">${fmt(acumulado)}</strong>.<br><br>O que quer fazer?` 
+        : 'Você não tem aportes ainda. Quer redefinir a meta?'}
+    </div>
+    
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-secondary" onclick="resetMetaSoInfo()">
+        ✏️ Apenas trocar nome/valor da meta<br>
+        <span style="font-size:11px;color:var(--text-muted);font-weight:normal">Mantém os aportes</span>
+      </button>
+      
+      ${aportes.length > 0 ? `
+        <button class="btn btn-danger" onclick="resetMetaCompleto()">
+          🗑️ Resetar tudo (nome + valor + aportes)<br>
+          <span style="font-size:11px;opacity:0.8;font-weight:normal">Apaga ${aportes.length} aporte(s)</span>
+        </button>
+      ` : ''}
+      
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+    </div>
+  `);
+}
+
+function resetMetaSoInfo() {
+  closeModal();
+  setTimeout(() => editMetaInfo(), 100);
+}
+
+function resetMetaCompleto() {
+  if (!confirm('Tem certeza? Vai apagar todos os aportes e zerar a meta.')) return;
+  DATA.metas = { nome: 'Minha Meta', icone: '🎯', valorMeta: 0, aportes: [] };
+  saveData();
+  closeModal();
+  render();
+  showToast('Meta resetada');
+}
+
+function editAporte(idx) {
+  const a = DATA.metas.aportes[idx];
+  if (!a) return;
+  
+  showModal(`
+    <div class="modal-title">✏️ Editar Aporte</div>
+    <div class="form-group">
+      <label class="form-label">Mês/Ano</label>
+      <input class="form-input" type="text" id="a_mes" value="${a.mes || ''}">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Origem</label>
+      <select class="form-select" id="a_origem">
+        <option value="Sobra do mês" ${a.origem === 'Sobra do mês' ? 'selected' : ''}>Sobra do mês</option>
+        <option value="Juros" ${a.origem === 'Juros' ? 'selected' : ''}>Juros</option>
+        <option value="13º/Férias" ${a.origem === '13º/Férias' ? 'selected' : ''}>13º/Férias</option>
+        <option value="Bônus" ${a.origem === 'Bônus' ? 'selected' : ''}>Bônus</option>
+        <option value="Extra" ${a.origem === 'Extra' ? 'selected' : ''}>Extra</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Valor (R$)</label>
+      <input class="form-input" type="number" step="0.01" id="a_valor" value="${a.valor || ''}" inputmode="decimal">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observação</label>
+      <input class="form-input" type="text" id="a_obs" value="${a.obs || ''}">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="deleteAporte(${idx})">Excluir</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="updateAporte(${idx})">Salvar</button>
+    </div>
+  `);
+}
+
+function updateAporte(idx) {
+  if (!DATA.metas.aportes[idx]) return;
+  DATA.metas.aportes[idx] = {
+    mes: document.getElementById('a_mes').value,
+    origem: document.getElementById('a_origem').value,
+    valor: parseFloat(document.getElementById('a_valor').value) || 0,
+    obs: document.getElementById('a_obs').value,
+  };
+  saveData();
+  closeModal();
+  render();
+  showToast('Aporte atualizado');
+}
+
+function deleteAporte(idx) {
+  if (!confirm('Excluir esse aporte?')) return;
+  DATA.metas.aportes.splice(idx, 1);
+  saveData();
+  closeModal();
+  render();
+  showToast('Aporte excluído');
 }
 
 // ============================================================
@@ -3533,7 +3698,7 @@ function resetData() {
     despesas: [],
     emprestimos: [],
     investimentos: [],
-    metas: { valorMeta: 0, aportes: [] }
+    metas: { nome: 'Minha Meta', icone: '🎯', valorMeta: 0, aportes: [] }
   };
   saveData();
   render();
